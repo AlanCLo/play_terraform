@@ -6,6 +6,16 @@ resource "azurerm_availability_set" "frontend" {
 
 }
 
+## I wanted to check out what was on the VM so enable this if needed.
+# resource "azurerm_public_ip" "tmpssh" {
+#     count                        = "${var.instance_count}"
+#     name                         = "${var.prefix}-public-ip-ssh-${count.index}"
+#     location                     = "${var.location}"
+#     resource_group_name          = "${var.resource_group}"
+#     allocation_method = "Dynamic"
+# }
+
+## My version of azurerm provider hated this
 # resource "azurerm_storage_container" "frontend" {
 #     count                 = "${var.instance_count}"
 #     name                  = "${var.prefix}-f-storage-container-${count.index}"
@@ -13,6 +23,7 @@ resource "azurerm_availability_set" "frontend" {
 #     storage_account_name  = "${azurerm_storage_account.frontend.name}"
 #     container_access_type = "private"
 # }
+
 
 resource "azurerm_network_interface" "frontend" {
     count               = "${var.instance_count}"
@@ -24,8 +35,22 @@ resource "azurerm_network_interface" "frontend" {
         name                                    = "${var.prefix}-f-ip-${count.index}"
         subnet_id                               = "${var.subnet_id}"
         private_ip_address_allocation           = "dynamic"
+        ### This from the tutorial doesn't work with the azurerm provider I got
         #load_balancer_backend_address_pools_ids = ["${azurerm_lb_backend_address_pool.frontend.id}"]
+        ### ^^^ Using azurerm_network_interface_backend_address_pool_association
+        #
+        ### For when I want to ssh to this without making a bastion
+        #public_ip_address_id                    = "${element(azurerm_public_ip.tmpssh.*.id, count.index)}"
     }
+}
+### Apparently I need this
+### https://registry.terraform.io/providers/hashicorp/azurerm/1.44.0/docs/resources/network_interface_backend_address_pool_association
+resource "azurerm_network_interface_backend_address_pool_association" "frontend" {
+    count                   = "${var.instance_count}"
+    network_interface_id    = "${element(azurerm_network_interface.frontend.*.id, count.index)}"
+    ip_configuration_name   = "${var.prefix}-f-ip-${count.index}"
+    backend_address_pool_id = "${azurerm_lb_backend_address_pool.frontend.id}"
+
 }
 
 resource "azurerm_virtual_machine" "frontend" {
