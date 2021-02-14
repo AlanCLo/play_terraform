@@ -2,7 +2,6 @@
 #     prefix      = "${var.prefix}"
 #     byte_length = "4"
 # }
-
 # resource "azurerm_storage_account" "frontend" {
 #     name                     = "${lower(random_id.storage_account.hex)}"
 #     resource_group_name      = "${var.resource_group}"
