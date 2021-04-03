@@ -15,14 +15,10 @@ provider "azurerm" {
 }
 
 resource "azurerm_resource_group" "example" {
-  name     = "alanlo-tf2-resource"
-  location = "Australia Southeast"
+  name     = var.my_rg_name
+  location = "Australia East"
 
-  tags = {
-    Owner   = "alanlo"
-    Purpose = "training"
-    Client  = "L&D"
-  }
+  tags = var.my_tags
 }
 
 resource "azurerm_public_ip" "example" {
@@ -31,11 +27,7 @@ resource "azurerm_public_ip" "example" {
   resource_group_name          = azurerm_resource_group.example.name
   allocation_method = "Dynamic"
 
-  tags = {
-    Owner   = "alanlo"
-    Purpose = "training"
-    Client  = "L&D"
-  }
+  tags = var.my_tags
 }
 
 resource "azurerm_virtual_network" "example" {
@@ -44,11 +36,7 @@ resource "azurerm_virtual_network" "example" {
   location            = azurerm_resource_group.example.location
   resource_group_name = azurerm_resource_group.example.name
   
-  tags = {
-    Owner   = "alanlo"
-    Purpose = "training"
-    Client  = "L&D"
-  }
+  tags = var.my_tags
 }
 
 resource "azurerm_subnet" "example" {
@@ -57,11 +45,6 @@ resource "azurerm_subnet" "example" {
   virtual_network_name = azurerm_virtual_network.example.name
   address_prefixes     = ["10.0.2.0/24"]
 
-  #tags = {
-  #  Owner   = "alanlo"
-  #  Purpose = "training"
-  #  Client  = "L&D"
-  #}
 }
 
 resource "azurerm_network_interface" "example" {
@@ -76,26 +59,22 @@ resource "azurerm_network_interface" "example" {
     public_ip_address_id          = azurerm_public_ip.example.id
   }
 
-  tags = {
-    Owner   = "alanlo"
-    Purpose = "training"
-    Client  = "L&D"
-  }
+  tags = var.my_tags
 }
 
 resource "azurerm_linux_virtual_machine" "example" {
   name                = "example-machine"
   resource_group_name = azurerm_resource_group.example.name
   location            = azurerm_resource_group.example.location
-  size                = "Standard_F2"
-  admin_username      = "ubuntu"
+  size                = var.vm_size
+  admin_username      = var.my_user
   network_interface_ids = [
     azurerm_network_interface.example.id,
   ]
 
   admin_ssh_key {
-    username   = "ubuntu"
-    public_key = file("~/.ssh/id_rsa_azure.pub")
+    username   = var.my_user
+    public_key = file(var.my_key)
   }
 
   os_disk {
@@ -104,21 +83,39 @@ resource "azurerm_linux_virtual_machine" "example" {
   }
 
   source_image_reference {
-    publisher = "Canonical"
-    offer     = "UbuntuServer"
-    sku       = "16.04-LTS"
-    version   = "latest"
+    publisher = var.my_publisher
+    offer     = var.my_offer
+    sku       = var.my_sku
+    version   = var.my_version
   }
 
-  custom_data = base64encode(file("myapp.sh"))
-
-  tags = {
-    Owner   = "alanlo"
-    Purpose = "training"
-    Client  = "L&D"
-  }
+  tags = var.my_tags
 }
 
+resource "azurerm_network_security_group" "example" {
+  name                = "example-nsg"
+  location            = azurerm_resource_group.example.location
+  resource_group_name = azurerm_resource_group.example.name
+
+  security_rule {
+    name                       = "ssh"
+    priority                   = 100
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "TCP"
+    source_port_range          = "*"
+    destination_port_range     = "22"
+    source_address_prefix      = var.my_ip
+    destination_address_prefix = "*"
+  }
+
+  tags = var.my_tags
+}
+
+resource "azurerm_network_interface_security_group_association" "example" {
+  network_interface_id      = azurerm_network_interface.example.id
+  network_security_group_id = azurerm_network_security_group.example.id
+}
 
 output "vm_ip" {
     value = azurerm_public_ip.example.ip_address
