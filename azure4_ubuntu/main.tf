@@ -119,4 +119,5 @@ resource "azurerm_network_interface_security_group_association" "example" {
 
 output "vm_ip" {
     value = azurerm_public_ip.example.ip_address
+    depends_on = [ azurerm_network_interface.example ]
 }
