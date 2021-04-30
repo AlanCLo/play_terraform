@@ -5,7 +5,7 @@ variable "my_user" {
     default="azureuser"
 }
 variable "my_pass" {
-    type="string"
+    type=string
 }
 variable "my_ip" {
     default="59.102.50.152"

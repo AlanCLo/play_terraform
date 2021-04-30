@@ -31,3 +31,16 @@ variable "my_version" {
 variable "my_tags" {
     type=map(string)
 }
+
+variable "subscription_id" {
+  type=string
+}
+variable "client_id" {
+  type=string
+}
+variable "client_secret" {
+  type=string
+}
+variable "tenant_id" {
+  type=string
+}
