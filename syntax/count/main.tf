@@ -1,12 +1,7 @@
+resource "random_string" "my_count" {
+  count = "${var.num_items}"
 
-variable "blah" {
-  default = [ "1", "2", "3", "4" ]
-}
-
-resource "random_string" "hello" {
-  count = 4
-
-  length=6
+  length  = 6
   lower   = true
   upper   = false
   number  = false
@@ -14,7 +9,7 @@ resource "random_string" "hello" {
 }
 
 resource "null_resource" "echo" {
-  count = 4
+  count = "${var.num_items}"
 
   triggers = {
     always_run = "${timestamp()}"
@@ -22,7 +17,7 @@ resource "null_resource" "echo" {
 
   provisioner "local-exec" {
     command = <<EOT
-      echo "${element(random_string.hello.*.result, count.index)}"
+      echo "${element(random_string.my_count.*.result, count.index)}"
 EOT
   }
 }
