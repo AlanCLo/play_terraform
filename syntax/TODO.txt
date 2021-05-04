@@ -1,0 +1,9 @@
+Data Sources
+Input Variables
+Output Variables
+Module
+
+Expressions *
+Functions *
+
+Terraform settings
