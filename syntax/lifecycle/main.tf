@@ -8,7 +8,7 @@ resource "null_resource" "test_default" {
   }
 
   provisioner "local-exec" {
-    when = destroy
+    when    = destroy
     command = "echo [default] Destorying"
   }
 }
@@ -23,7 +23,7 @@ resource "null_resource" "test_create_before_destroy" {
   }
 
   provisioner "local-exec" {
-    when = destroy
+    when    = destroy
     command = "echo [create_before_destroy] Destorying"
   }
 
@@ -53,7 +53,7 @@ resource "null_resource" "ignore_changes" {
   }
 
   provisioner "local-exec" {
-    when = destroy
+    when    = destroy
     command = "echo [ignore_changes] Destorying"
   }
 
