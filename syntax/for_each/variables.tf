@@ -26,6 +26,14 @@ variable "more_items" {
   ]
 }
 
+variable "empty_list" {
+  description = "empty"
+  type        = map(string)
+
+  default = {}
+
+}
+
 locals {
   test_join_string    = join("-", [for k, v in var.my_items : "${k}-${v}"], )
   convert_list_to_map = { for thing in var.more_items : join("-", [for k, v in thing : "${k}-${v}"]) => thing }

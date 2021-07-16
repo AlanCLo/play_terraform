@@ -28,3 +28,11 @@ EOT
   }
 }
 
+
+resource "null_resource" "empty_test" {
+  for_each = var.empty_list
+
+  provisioner "local-exec" {
+    command = "echo this should never exec"
+  }
+}
