@@ -6,6 +6,16 @@ resource "random_string" "my_rand" {
   special = false
 }
 
+# You can refernce another resource in a null_resource provisioner
+# without adding it to trigger.
+# 0.12 syntax requirement is that vars/locals cannot be referred
+# inside a provisioner
+resource "null_resource" "standalone" {
+  provisioner "local-exec" {
+    command = "echo hello"
+  }
+}
+
 resource "null_resource" "test_null" {
   triggers = {
     my_rand     = random_string.my_rand.result
@@ -18,6 +28,7 @@ resource "null_resource" "test_null" {
     command = <<EOT
       echo "My Rand (self.trigger): ${self.triggers.my_rand}"
       echo "My Var: ${self.triggers.my_variable}"
+      echo "My standalone resource id: ${null_resource.standalone.id}"
 EOT
 
   }
