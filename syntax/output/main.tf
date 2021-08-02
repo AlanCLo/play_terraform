@@ -15,7 +15,6 @@ module "more_nothing" {
   source = "modules/nothing"
 }
 
-
 output "do_one" {
   value = "${join(",", null_resource.do_one.*.id)}"
 }
@@ -31,3 +30,5 @@ output "do_none" {
 output "nothing_module" {
   value = "${module.more_nothing.nothing_id}"
 }
+
+
